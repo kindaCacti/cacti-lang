@@ -39,11 +39,17 @@ int main(int argc, char* argv[]){
         }
     }
 
-    for(auto& tok : tokens){
-        if(tok.type == TokenTypes::_return) std::cout<<"return "<<std::endl;
-        if(tok.type == TokenTypes::_integer_literal) std::cout<<"int_lit "<<std::endl;
-        if(tok.type == TokenTypes::_semicolon) std::cout<<"; "<<std::endl;
+    // just to test out the basic functionality
+    std::stringstream out;
+    out << "global _start\n   _start:\n";
+
+    if(tokens[0].type == TokenTypes::_return and tokens[1].type == TokenTypes::_integer_literal and tokens[2].type == TokenTypes::_semicolon){
+        out << "   mov rax, 60\n";
+        out << "   mov rdi, " << tokens[1].data.value() << "\n";
+        out << "   syscall";
     }
+
+    std::cout<<out.str();
 
     return EXIT_SUCCESS;
 }
