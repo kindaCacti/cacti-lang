@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include "tokenizer.h"
 
 int main(int argc, char* argv[]){
     if(argc == 1){
@@ -18,7 +19,31 @@ int main(int argc, char* argv[]){
         data = stream_data.str();
     }
 
-    std::cout<<data;
+    std::vector<Token> tokens;
+
+    Tokenizer tokenizer;
+    std::string buffer;
+
+    for(char c : data){
+        // TODO: change to checking for one of special caracters
+        if(c == ' ' or c == '\n' or c == ';'){
+            tokens.push_back(tokenizer.generateToken(buffer));
+            buffer.clear();
+        }else{
+            buffer.push_back(c);
+        }
+
+        if(c == ';'){
+            std::string semString(";");
+            tokens.push_back(tokenizer.generateToken(semString));
+        }
+    }
+
+    for(auto& tok : tokens){
+        if(tok.type == TokenTypes::_return) std::cout<<"return "<<std::endl;
+        if(tok.type == TokenTypes::_integer_literal) std::cout<<"int_lit "<<std::endl;
+        if(tok.type == TokenTypes::_semicolon) std::cout<<"; "<<std::endl;
+    }
 
     return EXIT_SUCCESS;
 }

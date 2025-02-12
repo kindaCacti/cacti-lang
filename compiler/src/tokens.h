@@ -1,10 +1,12 @@
+#pragma once
 #include <string>
 #include <vector>
 
 enum TokenTypes{
     _semicolon,
     _return,
-    _integer_literal
+    _integer_literal,
+    _string_literal
 };
 
 struct TokenData{
@@ -13,6 +15,5 @@ struct TokenData{
 };
 
 const std::vector<TokenData> tokenStrings = {
-    {";",       TokenTypes::_semicolon},
     {"return",  TokenTypes::_return}
 };

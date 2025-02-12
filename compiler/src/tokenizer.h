@@ -1,7 +1,10 @@
+#pragma once
 #include <map>
 #include <optional>
 #include <string>
 #include <vector>
+#include <unordered_set>
+#include <iostream>
 #include "tokens.h"
 
 struct Token{
@@ -17,33 +20,36 @@ class Trie{
 
     std::vector<Node> nodes;
 public:
-    void addToken(std::string& tokenString, TokenTypes token){
-        Node& currentNode = nodes[0];
-        for(char c : tokenString){
-            if(currentNode.children.find(c) == currentNode.children.end()){
-                currentNode.children[c] = nodes.size();
-                nodes.push_back({});
-            }
-            currentNode = nodes[currentNode.children[c]];
-        }
+    Trie(){
+        nodes.push_back(Node());
+    }
 
-        currentNode.token = token;
+    void addToken(std::string& tokenString, TokenTypes token){
+        int currentNode = 0;
+        for(char c : tokenString){
+            if(nodes[currentNode].children.find(c) == nodes[currentNode].children.end()){
+                nodes.push_back(Node());
+                nodes[currentNode].children.insert({c, nodes.size() - 1});
+            }
+            currentNode = nodes[currentNode].children[c];
+        }
+        nodes[currentNode].token = token;
     }
 
     std::optional<TokenTypes> getToken(std::string& tokenString){
-        Node& currentNode = nodes[0];
+        int currentNode = 0;
         for(char c : tokenString){
-            if(currentNode.children.find(c) == currentNode.children.end()){
+            if(nodes[currentNode].children.find(c) == nodes[currentNode].children.end()){
                 return {};
             }
-            currentNode = nodes[currentNode.children[c]];
+            currentNode = nodes[currentNode].children[c];
         }
 
-        if(!currentNode.token.has_value()){
+        if(!nodes[currentNode].token.has_value()){
             return {};
         }
 
-        return currentNode.token;
+        return nodes[currentNode].token;
     }
 };
 
@@ -55,7 +61,49 @@ public:
         }
     }
 
-    Tokenizer(){
+    Tokenizer(): Trie(){
         loadTokens();
+    }
+
+    std::optional<TokenTypes> checkAgainstSpecialChars(char data){
+        if(data == ';') return TokenTypes::_semicolon;
+        return {};
+    }
+
+    std::optional<TokenTypes> checkForLiterals(std::string& data){
+        for(char c : data){
+            if(c < '0' or c > '9') return {};
+        }
+        return TokenTypes::_integer_literal;
+    }
+
+    Token generateToken(std::string& data){
+        Token token;
+
+        // checking for semicolons and such
+        if(data.size() == 1){
+            std::optional<TokenTypes> tokenType = checkAgainstSpecialChars(data[0]);
+            if(tokenType.has_value()){
+                token.type = tokenType.value();
+                return token;
+            }
+        }
+
+        // checking for special words
+        std::optional<TokenTypes> tokenType = getToken(data);
+
+        if(tokenType.has_value()){
+            token.type = tokenType.value();
+            return token;
+        }
+
+        tokenType = checkForLiterals(data);
+
+        if(tokenType.has_value()){
+            token.type = tokenType.value();
+            return token;
+        }
+
+        return {};
     }
 };
