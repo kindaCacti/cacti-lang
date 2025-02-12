@@ -101,6 +101,7 @@ public:
 
         if(tokenType.has_value()){
             token.type = tokenType.value();
+            token.data = data;
             return token;
         }
 
