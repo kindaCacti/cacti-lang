@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include "tokenizer.h"
+#include "tokenizer.hpp"
 
 int main(int argc, char* argv[]){
     if(argc == 1){
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
     if(tokens[0].type == TokenTypes::_exit and tokens[1].type == TokenTypes::_integer_literal and tokens[2].type == TokenTypes::_semicolon){
         out << "   mov rax, 60\n";
         out << "   mov rdi, " << tokens[1].data.value() << "\n";
-        out << "   syscall";
+        out << "   syscall\n";
     }
 
     std::cout<<out.str();

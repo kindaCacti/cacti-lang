@@ -5,12 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <iostream>
-#include "tokens.h"
-
-struct Token{
-    TokenTypes type;
-    std::optional<std::string> data;
-};
+#include "tokens.hpp"
 
 class Trie{
     struct Node{

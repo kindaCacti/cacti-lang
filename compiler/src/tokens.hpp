@@ -1,12 +1,18 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <optional>
 
 enum TokenTypes{
     _semicolon,
     _exit,
     _integer_literal,
     _string_literal
+};
+
+struct Token{
+    TokenTypes type;
+    std::optional<std::string> data;
 };
 
 struct TokenData{
