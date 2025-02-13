@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include "tokenizer.hpp"
+#include "parser.hpp"
+#include "code_generator.hpp"
 
 int main(int argc, char* argv[]){
     if(argc == 1){
@@ -39,17 +41,16 @@ int main(int argc, char* argv[]){
         }
     }
 
-    // just to test out the basic functionality
-    std::stringstream out;
-    out << "global _start\n   _start:\n";
+    Parser parser(std::move(tokens));
+    std::optional<ParseNodes::Exit> tree = parser.parse();
 
-    if(tokens[0].type == TokenTypes::_exit and tokens[1].type == TokenTypes::_integer_literal and tokens[2].type == TokenTypes::_semicolon){
-        out << "   mov rax, 60\n";
-        out << "   mov rdi, " << tokens[1].data.value() << "\n";
-        out << "   syscall\n";
+    if(!tree.has_value()){
+        std::cerr<<"INVALID SYNTAX\n";
+        exit(EXIT_FAILURE);
     }
 
-    std::cout<<out.str();
+    CodeGenerator generator(tree.value());
+    std::cout << generator.generate().str();
 
     return EXIT_SUCCESS;
 }
