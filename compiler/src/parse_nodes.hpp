@@ -5,7 +5,7 @@
 // just for the sake of being clean I guess
 namespace ParseNodes{
     struct Expr{
-        Token intLit; // just for now because we don't have any math
+        Token int_lit; // just for now because we don't have any math
     };
 
     struct Exit{
