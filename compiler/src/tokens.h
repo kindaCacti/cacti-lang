@@ -4,7 +4,7 @@
 
 enum TokenTypes{
     _semicolon,
-    _return,
+    _exit,
     _integer_literal,
     _string_literal
 };
@@ -15,5 +15,5 @@ struct TokenData{
 };
 
 const std::vector<TokenData> tokenStrings = {
-    {"return",  TokenTypes::_return}
+    {"exit",  TokenTypes::_exit}
 };
