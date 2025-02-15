@@ -85,6 +85,7 @@ public:
             std::optional<TokenTypes> tokenType = checkAgainstSpecialChars(data[0]);
             if(tokenType.has_value()){
                 token.type = tokenType.value();
+                token.data = std::string(data);
                 return token;
             }
         }

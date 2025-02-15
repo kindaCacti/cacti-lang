@@ -1,3 +1,6 @@
+// This file really needs some cleaning up
+// I should do this
+
 #pragma once
 
 #include <optional>
@@ -12,12 +15,36 @@ public:
     Parser(std::vector<Token> _tokens)
         : tokens(_tokens), t_index(0) {}
 
-    std::optional<std::shared_ptr<ParseNodes::Expr>> parse_expr(){
+    std::optional<std::shared_ptr<ParseNodes::Expr>> parse_expr(bool chk_mul = true){
         if(!peek().has_value()){
             return {};
         }
 
         std::shared_ptr<ParseNodes::Expr> expression(new ParseNodes::Expr);
+        if(peek(1).value().type == TokenTypes::_addition and chk_mul){
+            std::shared_ptr<ParseNodes::ExprOper> exprOper(new ParseNodes::ExprOper);
+            std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprLeft = parse_expr(false);
+
+            if(!parsedExprLeft.has_value()){
+                std::cerr << "Expected expressions on each side of operator" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            exprOper->left = parsedExprLeft.value();
+            exprOper->oper = consume().value().data.value();
+            std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprRight = parse_expr();
+
+            if(!parsedExprRight.has_value()){
+                std::cerr << "Expected expression on each side of operator" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            exprOper->right = parsedExprRight.value();
+            expression->var = exprOper;
+
+            return expression;
+        }
+
         if(peek().value().type == TokenTypes::_integer_literal){
             std::shared_ptr<ParseNodes::ExprIntLit> exprIntLit(new ParseNodes::ExprIntLit());
             exprIntLit->int_lit = consume().value();

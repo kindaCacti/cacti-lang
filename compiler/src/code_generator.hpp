@@ -38,8 +38,15 @@ public:
                 gen->push("rax");
             }
 
-            void operator()(const std::shared_ptr<ParseNodes::ExprOper> let_expr){
-                
+            void operator()(const std::shared_ptr<ParseNodes::ExprOper> operator_expr){
+                gen->generate_expression(operator_expr->left);
+                gen->generate_expression(operator_expr->right);
+
+                gen->pop("rax");
+                gen->pop("rbx");
+
+                gen->out << "   add rax, rbx\n";
+                gen->push("rax");
             }
         private:
             CodeGenerator* gen;

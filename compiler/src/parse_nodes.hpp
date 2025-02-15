@@ -3,15 +3,12 @@
 #include <variant>
 #include <vector>
 #include <memory>
+#include <string>
 #include "tokens.hpp"
 
 // just for the sake of being clean I guess
 namespace ParseNodes{
     struct Expr;
-    
-    enum Operators{
-        _plus
-    };
 
     struct ExprIntLit{
         Token int_lit;
@@ -23,7 +20,7 @@ namespace ParseNodes{
 
     struct ExprOper{
         std::shared_ptr<Expr> left, right;
-        Operators oper;
+        std::string oper;
     };
 
     struct Expr{
