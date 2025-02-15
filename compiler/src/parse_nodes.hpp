@@ -2,10 +2,17 @@
 
 #include <variant>
 #include <vector>
+#include <memory>
 #include "tokens.hpp"
 
 // just for the sake of being clean I guess
 namespace ParseNodes{
+    struct Expr;
+    
+    enum Operators{
+        _plus
+    };
+
     struct ExprIntLit{
         Token int_lit;
     };
@@ -13,25 +20,33 @@ namespace ParseNodes{
     struct ExprIdent{
         Token identifier;
     };
-    
+
+    struct ExprOper{
+        std::shared_ptr<Expr> left, right;
+        Operators oper;
+    };
+
     struct Expr{
-        std::variant<ExprIntLit, ExprIdent> var;
+        std::variant<std::shared_ptr<ExprIntLit>, 
+                     std::shared_ptr<ExprIdent>,
+                     std::shared_ptr<ExprOper>> var;
     };
 
     struct StmtExit{
-        Expr expression;
+        std::shared_ptr<Expr> expression;
     };
 
     struct StmtLet{
         Token identifier;
-        Expr expression;
+        std::shared_ptr<Expr> expression;
     };
 
     struct Stmt{
-        std::variant<StmtExit, StmtLet> var;
+        std::variant<std::shared_ptr<StmtExit>, 
+                     std::shared_ptr<StmtLet>> var;
     };
 
     struct Prog{
-        std::vector<Stmt> statements;
+        std::vector<std::shared_ptr<Stmt>> statements;
     };
 };

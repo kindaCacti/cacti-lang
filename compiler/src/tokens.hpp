@@ -4,7 +4,7 @@
 #include <optional>
 #include <set>
 
-std::set<char> special_chars = {';', '(', ')', '='};
+std::set<char> special_chars = {';', '(', ')', '=', '+'};
 
 enum TokenTypes{
     _semicolon,
@@ -14,7 +14,8 @@ enum TokenTypes{
     _close_parentheses,
     _identifier,
     _let,
-    _equals
+    _equals,
+    _addition
 };
 
 struct Token{

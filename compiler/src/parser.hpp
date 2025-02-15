@@ -3,6 +3,7 @@
 #include <optional>
 #include <vector>
 #include <iostream>
+#include <memory>
 #include "parse_nodes.hpp"
 #include "tokens.hpp"
 
@@ -11,26 +12,34 @@ public:
     Parser(std::vector<Token> _tokens)
         : tokens(_tokens), t_index(0) {}
 
-    std::optional<ParseNodes::Expr> parse_expr(){
+    std::optional<std::shared_ptr<ParseNodes::Expr>> parse_expr(){
         if(!peek().has_value()){
             return {};
         }
 
+        std::shared_ptr<ParseNodes::Expr> expression(new ParseNodes::Expr);
         if(peek().value().type == TokenTypes::_integer_literal){
-            return ParseNodes::Expr {.var = ParseNodes::ExprIntLit {.int_lit = consume().value()}};
+            std::shared_ptr<ParseNodes::ExprIntLit> exprIntLit(new ParseNodes::ExprIntLit());
+            exprIntLit->int_lit = consume().value();
+            (*expression).var = exprIntLit;
+            return expression;
         }
 
         if(peek().value().type == TokenTypes::_identifier){
-            return ParseNodes::Expr {.var = ParseNodes::ExprIdent {.identifier = consume().value()}};
+            std::shared_ptr<ParseNodes::ExprIdent> exprIdent(new ParseNodes::ExprIdent());
+            exprIdent->identifier = consume().value();
+            (*expression).var = exprIdent;
+            return expression;
         }
 
         return {};
     }
 
-    std::optional<ParseNodes::Stmt> parse_stmt(){
+    std::optional<std::shared_ptr<ParseNodes::Stmt>> parse_stmt(){
         if(!peek().has_value()){
             return {};
         }
+
 
         if(peek().value().type == TokenTypes::_exit){
             consume();
@@ -42,12 +51,15 @@ public:
 
             consume();
 
-            std::optional<ParseNodes::Expr> expression = parse_expr();
+            std::optional<std::shared_ptr<ParseNodes::Expr>> expression = parse_expr();
             if(!expression.has_value()){
                 return {};
             }
 
-            ParseNodes::Stmt statement =  ParseNodes::Stmt {.var = ParseNodes::StmtExit {.expression = expression.value()}};
+            std::shared_ptr<ParseNodes::Stmt> statement(new ParseNodes::Stmt);
+            std::shared_ptr<ParseNodes::StmtExit> exitStatement(new ParseNodes::StmtExit);
+            exitStatement->expression = expression.value();
+            statement->var = exitStatement;
 
             if(!peek(1).has_value() or peek().value().type != TokenTypes::_close_parentheses or 
             peek(1).value().type != TokenTypes::_semicolon){
@@ -63,7 +75,7 @@ public:
 
         if(peek().value().type == TokenTypes::_let){
             consume();
-            ParseNodes::Stmt letStatement;
+            std::shared_ptr<ParseNodes::Stmt> statement(new ParseNodes::Stmt);
 
             if(!peek().has_value() or peek().value().type != TokenTypes::_identifier){
                 std::cerr<<"Expected Identifier"<<std::endl;
@@ -78,14 +90,17 @@ public:
 
             consume();
 
-            std::optional<ParseNodes::Expr> expression = parse_expr();
+            std::optional<std::shared_ptr<ParseNodes::Expr>> expression = parse_expr();
 
             if(!expression.has_value()){
                 std::cerr<<"noexpr"<<std::endl;
                 return {};
             }
 
-            letStatement.var = ParseNodes::StmtLet {.identifier = identifier, .expression = expression.value()};
+            std::shared_ptr<ParseNodes::StmtLet> letStatement(new ParseNodes::StmtLet);
+            letStatement->identifier = identifier;
+            letStatement->expression = expression.value();
+            statement->var = letStatement;
 
             if(!peek().has_value() or peek().value().type != TokenTypes::_semicolon){
                 return {};
@@ -93,14 +108,19 @@ public:
 
             consume();
 
-            return letStatement;
+            return statement;
         }
 
         return {};
     }
 
-    std::optional<ParseNodes::Prog> parse_prog(){
-        ParseNodes::Prog progNode;
+    std::optional<std::shared_ptr<ParseNodes::Prog>> parse_prog(){
+        if(!peek().has_value()){
+            return {};
+        }
+
+        std::shared_ptr<ParseNodes::Prog> progNode(new ParseNodes::Prog);
+
         while(peek().has_value()){
             auto statement = parse_stmt();
             if(!statement.has_value()){
@@ -108,7 +128,7 @@ public:
                 exit(EXIT_FAILURE);
             }
 
-            progNode.statements.push_back(statement.value());
+            progNode->statements.push_back(statement.value());
         }
 
         return progNode;

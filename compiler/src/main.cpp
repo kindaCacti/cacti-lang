@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <memory>
 #include "tokenizer.hpp"
 #include "parser.hpp"
 #include "code_generator.hpp"
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]){
     }
 
     Parser parser(std::move(tokens));
-    std::optional<ParseNodes::Prog> tree = parser.parse_prog();
+    std::optional<std::shared_ptr<ParseNodes::Prog>> tree = parser.parse_prog();
 
     if(!tree.has_value()){
         std::cerr<<"INVALID SYNTAX\n";
