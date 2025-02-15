@@ -8,8 +8,8 @@ $$
     \end{cases}\\
     [\text{expr}] &\to
     \begin{cases}
-        \text{int\_lit}\\
-        \text{ident\_lit}
+        \text{intlit}\\
+        \text{identlit}
     \end{cases}
 \end{align}
 $$
