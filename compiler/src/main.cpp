@@ -27,22 +27,25 @@ int main(int argc, char* argv[]){
     std::string buffer;
 
     for(char c : data){
-        // TODO: change to checking for one of special caracters
-        if(c == ' ' or c == '\n' or c == ';'){
-            tokens.push_back(tokenizer.generateToken(buffer));
-            buffer.clear();
+        auto specialCharsIt = special_chars.find(c);
+        if(c == ' ' or c == '\n' or specialCharsIt != special_chars.end()){
+            if(buffer.size()){
+                tokens.push_back(tokenizer.generateToken(buffer));
+                buffer.clear();
+            }
         }else{
             buffer.push_back(c);
         }
 
-        if(c == ';'){
-            std::string semString(";");
-            tokens.push_back(tokenizer.generateToken(semString));
+        if(specialCharsIt != special_chars.end()){
+            std::string tokenString;
+            tokenString.push_back(c);
+            tokens.push_back(tokenizer.generateToken(tokenString));
         }
     }
 
     Parser parser(std::move(tokens));
-    std::optional<ParseNodes::Exit> tree = parser.parse();
+    std::optional<ParseNodes::Prog> tree = parser.parse_prog();
 
     if(!tree.has_value()){
         std::cerr<<"INVALID SYNTAX\n";
@@ -50,7 +53,6 @@ int main(int argc, char* argv[]){
     }
 
     CodeGenerator generator(tree.value());
-    std::cout << generator.generate().str();
-
+    std::cout << generator.generate_program();
     return EXIT_SUCCESS;
 }

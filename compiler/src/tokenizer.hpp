@@ -62,6 +62,9 @@ public:
 
     std::optional<TokenTypes> checkAgainstSpecialChars(char data){
         if(data == ';') return TokenTypes::_semicolon;
+        if(data == '(') return TokenTypes::_open_parentheses;
+        if(data == ')') return TokenTypes::_close_parentheses;
+        if(data == '=') return TokenTypes::_equals;
         return {};
     }
 
@@ -100,6 +103,6 @@ public:
             return token;
         }
 
-        return {};
+        return Token {.type = _identifier, .data=std::string(data)};
     }
 };

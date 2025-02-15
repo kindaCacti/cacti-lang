@@ -2,12 +2,19 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <set>
+
+std::set<char> special_chars = {';', '(', ')', '='};
 
 enum TokenTypes{
     _semicolon,
     _exit,
     _integer_literal,
-    _string_literal
+    _open_parentheses,
+    _close_parentheses,
+    _identifier,
+    _let,
+    _equals
 };
 
 struct Token{
@@ -21,5 +28,6 @@ struct TokenData{
 };
 
 const std::vector<TokenData> tokenStrings = {
-    {"exit",  TokenTypes::_exit}
+    {"exit",  TokenTypes::_exit},
+    {"let",   TokenTypes::_let}
 };
