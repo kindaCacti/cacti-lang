@@ -9,7 +9,7 @@ $$
     [\text{expr}] &\to
     \begin{cases}
         \text{intlit}\\
-        \text{identlit}
+        \text{ident}
     \end{cases}
 \end{align}
 $$
