@@ -9,7 +9,9 @@ $$
     [\text{expr}] &\to
     \begin{cases}
         \text{intlit}\\
-        \text{ident}
+        \text{ident}\\
+        \text{[expr]} + \text{[expr]}\\
+        \text{[expr]} * \text{[expr]}
     \end{cases}
 \end{align}
 $$
