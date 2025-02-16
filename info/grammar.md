@@ -8,9 +8,17 @@ $$
     \end{cases}\\
     [\text{expr}] &\to
     \begin{cases}
-        \text{intlit}\\
+        \text{int lit}\\
         \text{ident}\\
-        \text{[expr]} \text{[operator]} \text{[expr]}\\
+        \text{[oper]}
+    \end{cases}\\
+    \text{[oper]} &\to
+        \text{[arit]}^+\\
+    \text{[arit]} &\to
+    \begin{cases}
+        \text{[operator]}\\
+        \text{int lit}\\
+        \text{ident}
     \end{cases}\\
     \text{[operator]} &\to
     \begin{cases}
