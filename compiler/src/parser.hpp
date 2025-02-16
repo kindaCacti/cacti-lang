@@ -21,7 +21,8 @@ public:
         }
 
         std::shared_ptr<ParseNodes::Expr> expression(new ParseNodes::Expr);
-        if(peek(1).value().type == TokenTypes::_addition and chk_mul){
+        if((peek(1).value().type == TokenTypes::_addition or 
+        peek(1).value().type == TokenTypes::_multiplication) and chk_mul){
             std::shared_ptr<ParseNodes::ExprOper> exprOper(new ParseNodes::ExprOper);
             std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprLeft = parse_expr(false);
 
@@ -31,7 +32,7 @@ public:
             }
 
             exprOper->left = parsedExprLeft.value();
-            exprOper->oper = consume().value().data.value();
+            exprOper->oper = consume().value();
             std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprRight = parse_expr();
 
             if(!parsedExprRight.has_value()){

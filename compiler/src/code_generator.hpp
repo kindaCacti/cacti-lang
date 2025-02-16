@@ -24,8 +24,8 @@ public:
                 gen->push("rax");
             }
 
-            void operator()(const std::shared_ptr<ParseNodes::ExprIdent> let_expr){
-                std::string identifier = let_expr->identifier.data.value();
+            void operator()(const std::shared_ptr<ParseNodes::ExprIdent> ident_expr){
+                std::string identifier = ident_expr->identifier.data.value();
 
                 if(gen->variables_loc.find(identifier) == gen->variables_loc.end()){
                     std::cerr<<"Uninitialized identifier!"<<std::endl;
@@ -42,10 +42,11 @@ public:
                 gen->generate_expression(operator_expr->left);
                 gen->generate_expression(operator_expr->right);
 
+
                 gen->pop("rax");
                 gen->pop("rbx");
-
-                gen->out << "   add rax, rbx\n";
+                if(operator_expr->oper.type == TokenTypes::_addition) gen->out << "   add rax, rbx\n";
+                if(operator_expr->oper.type == TokenTypes::_multiplication) gen->out << "   imul rbx\n";
                 gen->push("rax");
             }
         private:

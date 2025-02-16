@@ -62,11 +62,13 @@ public:
 
     std::optional<TokenTypes> checkAgainstSpecialChars(char data){
         // I hate switch case so I'm using if-s xD
+        // Maybe this should return the whole token
         if(data == ';') return TokenTypes::_semicolon;
         if(data == '(') return TokenTypes::_open_parentheses;
         if(data == ')') return TokenTypes::_close_parentheses;
         if(data == '=') return TokenTypes::_equals;
         if(data == '+') return TokenTypes::_addition;
+        if(data == '*') return TokenTypes::_multiplication;
         return {};
     }
 

@@ -20,7 +20,7 @@ namespace ParseNodes{
 
     struct ExprOper{
         std::shared_ptr<Expr> left, right;
-        std::string oper;
+        Token oper;
     };
 
     struct Expr{
