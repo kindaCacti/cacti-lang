@@ -4,7 +4,8 @@ $$
     [\text{stmt}] &\to 
     \begin{cases}
         exit([\text{expr}]); \\
-        let \text{ ident} = [expr];
+        let \text{ ident} = [expr];\\
+        \text{if ([expr]) \{[stmt]}^*\text{\}}\\
     \end{cases}\\
     [\text{expr}] &\to
     \begin{cases}
