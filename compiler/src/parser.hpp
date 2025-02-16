@@ -37,7 +37,9 @@ public:
         }
 
         if(peek().value().type == TokenTypes::_addition or
-        peek().value().type == TokenTypes::_multiplication){
+        peek().value().type == TokenTypes::_subtraction or
+        peek().value().type == TokenTypes::_multiplication or
+        peek().value().type == TokenTypes::_division){
             std::shared_ptr<ParseNodes::ExprSgn> sign(new ParseNodes::ExprSgn);
             sign->oper = consume();
             arit->var = sign;
@@ -72,27 +74,9 @@ public:
 
         std::shared_ptr<ParseNodes::Expr> expression(new ParseNodes::Expr);
         if((peek(1).value().type == TokenTypes::_addition or 
-        peek(1).value().type == TokenTypes::_multiplication) and chk_mul){
-
-            /*std::shared_ptr<ParseNodes::ExprOper> exprOper(new ParseNodes::ExprOper);
-            std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprLeft = parse_expr(false);
-
-            if(!parsedExprLeft.has_value()){
-                std::cerr << "Expected expressions on each side of operator" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-
-            exprOper->left = parsedExprLeft.value();
-            exprOper->oper = consume();
-            std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprRight = parse_expr();
-
-            if(!parsedExprRight.has_value()){
-                std::cerr << "Expected expression on each side of operator" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-
-            exprOper->right = parsedExprRight.value();
-            expression->var = exprOper;*/
+        peek(1).value().type == TokenTypes::_subtraction or
+        peek(1).value().type == TokenTypes::_multiplication or
+        peek(1).value().type == TokenTypes::_division) and chk_mul){
 
             auto parsed_oper = parse_oper();
             if(!parsed_oper.has_value()){

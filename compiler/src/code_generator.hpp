@@ -18,10 +18,12 @@ public:
         root(_root) {}
     
     void generate_operators(TokenTypes type){
-        pop("rax");
         pop("rbx");
+        pop("rax");
         if(type == TokenTypes::_addition) out << "   add rax, rbx\n";
+        if(type == TokenTypes::_subtraction) out << "   sub rax, rbx\n";
         if(type == TokenTypes::_multiplication) out << "   imul rbx\n";
+        if(type == TokenTypes::_division) out << "   idiv rbx\n";
         push("rax");
     }
 

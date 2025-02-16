@@ -68,7 +68,9 @@ public:
         if(data == ')') return TokenTypes::_close_parentheses;
         if(data == '=') return TokenTypes::_equals;
         if(data == '+') return TokenTypes::_addition;
+        if(data == '-') return TokenTypes::_subtraction;
         if(data == '*') return TokenTypes::_multiplication;
+        if(data == '/') return TokenTypes::_division;
         return {};
     }
 

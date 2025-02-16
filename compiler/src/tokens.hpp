@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <set>
 
-std::set<char> special_chars = {';', '(', ')', '=', '+', '*'};
+std::set<char> special_chars = {';', '(', ')', '=', '+', '*', '-', '/'};
 
 enum TokenTypes{
     _semicolon,
@@ -17,12 +17,16 @@ enum TokenTypes{
     _let,
     _equals,
     _addition,
-    _multiplication
+    _subtraction,
+    _multiplication,
+    _division
 };
 
 std::unordered_map<TokenTypes, int> operator_weights = {
     {TokenTypes::_addition, 2},
-    {TokenTypes::_multiplication, 1}
+    {TokenTypes::_subtraction, 2},
+    {TokenTypes::_multiplication, 1},
+    {TokenTypes::_division, 1}
 };
 
 struct Token{
