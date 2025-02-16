@@ -46,6 +46,7 @@ int main(int argc, char* argv[]){
     }
 
     Parser parser(std::move(tokens));
+
     std::optional<std::shared_ptr<ParseNodes::Prog>> tree = parser.parse_prog();
 
     if(!tree.has_value()){

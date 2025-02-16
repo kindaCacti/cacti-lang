@@ -15,6 +15,56 @@ public:
     Parser(std::vector<Token> _tokens)
         : tokens(_tokens), t_index(0) {}
 
+    std::optional<std::shared_ptr<ParseNodes::ExprArit>> parse_arit(){
+        if(!peek().has_value()){
+            return {};
+        }
+
+        std::shared_ptr<ParseNodes::ExprArit> arit(new ParseNodes::ExprArit);
+
+        if(peek().value().type == TokenTypes::_integer_literal){
+            std::shared_ptr<ParseNodes::ExprIntLit> int_lit(new ParseNodes::ExprIntLit);
+            int_lit->int_lit = consume();
+            arit->var = int_lit;
+            return arit;
+        }
+
+        if(peek().value().type == TokenTypes::_identifier){
+            std::shared_ptr<ParseNodes::ExprIdent> ident(new ParseNodes::ExprIdent);
+            ident->identifier = consume();
+            arit->var = ident;
+            return arit;
+        }
+
+        if(peek().value().type == TokenTypes::_addition or
+        peek().value().type == TokenTypes::_multiplication){
+            std::shared_ptr<ParseNodes::ExprSgn> sign(new ParseNodes::ExprSgn);
+            sign->oper = consume();
+            arit->var = sign;
+            return arit;
+        }
+
+        return {};
+    }
+
+    std::optional<std::shared_ptr<ParseNodes::ExprOper>> parse_oper(){
+        if(!peek().has_value()){
+            return {};
+        }
+
+        std::shared_ptr<ParseNodes::ExprOper> parsed_oper(new ParseNodes::ExprOper);
+        while(peek().has_value() and peek().value().type != TokenTypes::_semicolon){
+            auto parsed_arit = parse_arit();
+            if(!parsed_arit.has_value()){
+                std::cerr<<"Invalid arithmetic expression";
+                exit(EXIT_FAILURE);
+            }
+            parsed_oper->arit.push_back(parsed_arit.value());
+        }
+
+        return parsed_oper;
+    }
+
     std::optional<std::shared_ptr<ParseNodes::Expr>> parse_expr(bool chk_mul = true){
         if(!peek().has_value()){
             return {};
@@ -23,7 +73,8 @@ public:
         std::shared_ptr<ParseNodes::Expr> expression(new ParseNodes::Expr);
         if((peek(1).value().type == TokenTypes::_addition or 
         peek(1).value().type == TokenTypes::_multiplication) and chk_mul){
-            std::shared_ptr<ParseNodes::ExprOper> exprOper(new ParseNodes::ExprOper);
+
+            /*std::shared_ptr<ParseNodes::ExprOper> exprOper(new ParseNodes::ExprOper);
             std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprLeft = parse_expr(false);
 
             if(!parsedExprLeft.has_value()){
@@ -32,7 +83,7 @@ public:
             }
 
             exprOper->left = parsedExprLeft.value();
-            exprOper->oper = consume().value();
+            exprOper->oper = consume();
             std::optional<std::shared_ptr<ParseNodes::Expr>> parsedExprRight = parse_expr();
 
             if(!parsedExprRight.has_value()){
@@ -41,21 +92,28 @@ public:
             }
 
             exprOper->right = parsedExprRight.value();
-            expression->var = exprOper;
+            expression->var = exprOper;*/
 
+            auto parsed_oper = parse_oper();
+            if(!parsed_oper.has_value()){
+                std::cerr << "invalid operation!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            (*expression).var = parsed_oper.value();
             return expression;
         }
 
         if(peek().value().type == TokenTypes::_integer_literal){
             std::shared_ptr<ParseNodes::ExprIntLit> exprIntLit(new ParseNodes::ExprIntLit());
-            exprIntLit->int_lit = consume().value();
+            exprIntLit->int_lit = consume();
             (*expression).var = exprIntLit;
             return expression;
         }
 
         if(peek().value().type == TokenTypes::_identifier){
             std::shared_ptr<ParseNodes::ExprIdent> exprIdent(new ParseNodes::ExprIdent());
-            exprIdent->identifier = consume().value();
+            exprIdent->identifier = consume();
             (*expression).var = exprIdent;
             return expression;
         }
@@ -95,8 +153,7 @@ public:
                 exit(EXIT_FAILURE);
             }
 
-            consume();
-            consume();
+            consume(2);
 
             return statement;
         }
@@ -110,7 +167,7 @@ public:
                 exit(EXIT_FAILURE);
             }
 
-            Token identifier = consume().value();
+            Token identifier = consume();
 
             if(!peek().has_value() or peek().value().type != TokenTypes::_equals){
                 return {};
@@ -174,11 +231,13 @@ private:
         return tokens[t_index + ahead];
     }
 
-    std::optional<Token> consume(){
+    Token consume(int ammount = 1){
         if(t_index >= tokens.size()){
-            return {};
+            std::cerr<<"Invalid consume operation!"<<std::endl;
+            exit(EXIT_FAILURE);
         }
 
+        while(--ammount) t_index++;
         return tokens[t_index++]; //hopefully this works
     }
 };

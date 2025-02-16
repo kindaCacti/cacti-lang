@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <unordered_map>
 #include <set>
 
 std::set<char> special_chars = {';', '(', ')', '=', '+', '*'};
@@ -17,6 +18,11 @@ enum TokenTypes{
     _equals,
     _addition,
     _multiplication
+};
+
+std::unordered_map<TokenTypes, int> operator_weights = {
+    {TokenTypes::_addition, 2},
+    {TokenTypes::_multiplication, 1}
 };
 
 struct Token{

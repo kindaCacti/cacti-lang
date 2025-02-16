@@ -18,9 +18,21 @@ namespace ParseNodes{
         Token identifier;
     };
 
-    struct ExprOper{
-        std::shared_ptr<Expr> left, right;
+    struct ExprSgn{
         Token oper;
+    };
+
+    struct ExprArit{
+        std::variant<std::shared_ptr<ExprIntLit>, 
+                     std::shared_ptr<ExprIdent>,
+                     std::shared_ptr<ExprSgn>> var;
+    };
+
+    // Maybe this should only have a list of variant<
+    struct ExprOper{
+        //std::shared_ptr<Expr> left, right;
+        //Token oper;
+        std::vector<std::shared_ptr<ExprArit>> arit;
     };
 
     struct Expr{
