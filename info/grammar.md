@@ -10,8 +10,7 @@ $$
     \begin{cases}
         \text{intlit}\\
         \text{ident}\\
-        \text{[expr]} + \text{[expr]}\\
-        \text{[expr]} * \text{[expr]}
+        \text{[expr]} \text{[operator]} \text{[expr]}\\
     \end{cases}
 \end{align}
 $$
