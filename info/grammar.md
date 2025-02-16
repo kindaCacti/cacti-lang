@@ -11,6 +11,11 @@ $$
         \text{intlit}\\
         \text{ident}\\
         \text{[expr]} \text{[operator]} \text{[expr]}\\
+    \end{cases}\\
+    \text{[operator]} &\to
+    \begin{cases}
+        +\\
+        *\\
     \end{cases}
 \end{align}
 $$
