@@ -23,7 +23,9 @@ $$
     \text{[operator]} &\to
     \begin{cases}
         +\\
+        -\\
         *\\
+        / \\
     \end{cases}
 \end{align}
 $$
