@@ -21,25 +21,23 @@ public:
         }
 
         std::shared_ptr<ParseNodes::ExprArit> arit(new ParseNodes::ExprArit);
+        TokenTypes next_token = peek().value().type;
 
-        if(peek().value().type == TokenTypes::_integer_literal){
+        if(next_token == TokenTypes::_integer_literal){
             std::shared_ptr<ParseNodes::ExprIntLit> int_lit(new ParseNodes::ExprIntLit);
             int_lit->int_lit = consume();
             arit->var = int_lit;
             return arit;
         }
 
-        if(peek().value().type == TokenTypes::_identifier){
+        if(next_token == TokenTypes::_identifier){
             std::shared_ptr<ParseNodes::ExprIdent> ident(new ParseNodes::ExprIdent);
             ident->identifier = consume();
             arit->var = ident;
             return arit;
         }
 
-        if(peek().value().type == TokenTypes::_addition or
-        peek().value().type == TokenTypes::_subtraction or
-        peek().value().type == TokenTypes::_multiplication or
-        peek().value().type == TokenTypes::_division){
+        if(operator_weights.find(next_token) != operator_weights.end()){
             std::shared_ptr<ParseNodes::ExprSgn> sign(new ParseNodes::ExprSgn);
             sign->oper = consume();
             arit->var = sign;
@@ -73,10 +71,9 @@ public:
         }
 
         std::shared_ptr<ParseNodes::Expr> expression(new ParseNodes::Expr);
-        if((peek(1).value().type == TokenTypes::_addition or 
-        peek(1).value().type == TokenTypes::_subtraction or
-        peek(1).value().type == TokenTypes::_multiplication or
-        peek(1).value().type == TokenTypes::_division) and chk_mul){
+        TokenTypes next_token = peek().value().type;
+        
+        if(operator_weights.find(peek(1).value().type) != operator_weights.end() and chk_mul){
 
             auto parsed_oper = parse_oper();
             if(!parsed_oper.has_value()){
@@ -110,8 +107,9 @@ public:
             return {};
         }
 
+        TokenTypes firstToken = peek().value().type;
 
-        if(peek().value().type == TokenTypes::_exit){
+        if(firstToken == TokenTypes::_exit){
             consume();
 
             if(!peek().has_value() or peek().value().type != TokenTypes::_open_parentheses){
@@ -142,7 +140,7 @@ public:
             return statement;
         }
 
-        if(peek().value().type == TokenTypes::_let){
+        if(firstToken == TokenTypes::_let){
             consume();
             std::shared_ptr<ParseNodes::Stmt> statement(new ParseNodes::Stmt);
 
