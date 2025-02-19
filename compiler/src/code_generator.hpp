@@ -197,6 +197,16 @@ public:
 
                 gen->out << "_if" << std::to_string(cid) << ":" << std::endl;
             }
+        
+            void operator()(const std::shared_ptr<ParseNodes::StmtAssign> assign_statement){
+                std::string& identifier = assign_statement->identifier.data.value();
+                if(gen->variables_loc.find(identifier) == gen->variables_loc.end()){
+                    std::cerr << "Variable " << identifier << " does not exist" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                gen->generate_expression(assign_statement->expression);
+                gen->update_variable(identifier);
+            }
         private:
             CodeGenerator* gen;
         };
@@ -238,6 +248,17 @@ public:
 
         out << "   pop " << reg << "\n";
         stack_loc--;
+    }
+
+    void update_variable(const std::string& var){
+        pop("rcx");
+        size_t ammount = (stack_loc - variables_loc[var]->stack_loc) * 8;
+        out << "   mov rbx, rsp\n";
+        out << "   mov rax, " << ammount <<"\n";
+        out << "   add rsp, rax\n";
+        out << "   mov rax, rcx" << "\n";
+        out << "   push rax\n";
+        out << "   mov rsp, rbx\n";
     }
 
     std::unordered_map<std::string, std::shared_ptr<Var>> variables_loc;

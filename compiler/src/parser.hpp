@@ -324,6 +324,31 @@ public:
             return out;
         }
 
+        if(firstToken == TokenTypes::_identifier){
+            Token ident = consume();
+            if(!peek().has_value() or peek().value().type != TokenTypes::_equals){
+                std::cerr << "Invalid variable assignment" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            consume();
+
+            auto parsed_expression = parse_expr();
+            if(!parsed_expression.has_value()){
+                std::cerr << "invalid expression in variable assignment" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(!peek().has_value()  or peek().value().type != TokenTypes::_semicolon){
+                std::cerr << "expected a ';'" << std::endl;
+                exit(EXIT_FAILURE);
+            } 
+            consume();
+
+            ParseNodes::StmtAssign expras{.identifier=ident, .expression=parsed_expression.value()};
+            std::shared_ptr<ParseNodes::StmtAssign> tmp(new ParseNodes::StmtAssign(expras));
+            ParseNodes::Stmt out{.var = tmp};
+            return std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(out));
+        }
+
         return {};
     }
 
