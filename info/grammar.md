@@ -3,13 +3,18 @@ $$
     [\text{prog}] &\to [\text{statement}]^* \\
     [\text{stmt}] &\to 
     \begin{cases}
-        exit([\text{expr}]); \\
-        let \text{ ident} = [expr];\\
-        \text{if ([expr]) \{[stmt]}^*\text{\}}\\
+        \text{exit}([\text{expr}]); \\
+        \text{let ident} = [expr];\\
+        \text{if ([exprbin]) [stmt]}\\
+        \text{\{ $\text{[stmtblck]}^*$ \}}
+    \end{cases}\\
+    [\text{stmtblck}] &\to
+    \begin{cases}
+        [\text{stmt}]^*
     \end{cases}\\
     [\text{expr}] &\to
     \begin{cases}
-        \text{int lit}\\
+        \text{intlit}\\
         \text{ident}\\
         \text{[oper]}
     \end{cases}\\
@@ -18,7 +23,7 @@ $$
     \text{[arit]} &\to
     \begin{cases}
         \text{[operator]}\\
-        \text{int lit}\\
+        \text{intlit}\\
         \text{ident}
     \end{cases}\\
     \text{[operator]} &\to
@@ -27,6 +32,19 @@ $$
         -\\
         *\\
         / \\
+    \end{cases}\\
+    \text{[exprbin]} &\to
+    \begin{cases}
+        \text{[expr][binsign][expr]}
+    \end{cases}\\
+    \text{[binsign]} &\to
+    \begin{cases}
+        ==\\
+        !=\\
+        >>\\
+        >=\\
+        <<\\
+        <=\\
     \end{cases}
 \end{align}
 $$
