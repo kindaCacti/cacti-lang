@@ -1,5 +1,11 @@
-let x = 3 + 10 + 2 + 1 + 2 + 1 + 5;
-let v = 8;
-let z = x + 2;
-let y = 8;
-exit(z);
+{
+    let x = 5;
+    let v = 3;
+    let z = 42 - 100 / 33 * 10 + 3;
+    if(v >> 3){
+        let output = v * 5 + x;
+        exit(output);
+    }
+    let output = v * 10 + x;
+    exit(output);
+}
