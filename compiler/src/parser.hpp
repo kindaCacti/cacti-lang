@@ -102,6 +102,112 @@ public:
         return {};
     }
 
+    std::optional<std::shared_ptr<ParseNodes::BinSign>> parse_binsign(){
+        if(!peek(1).has_value()){
+            std::cerr << "Invalid binary sign" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        if(peek().value().type == TokenTypes::_equals and
+        peek(1).value().type == TokenTypes::_equals){
+            consume(2);
+            ParseNodes::BinSign tmp{.sign={.type = TokenTypes::_cmp_eq}};
+            return std::shared_ptr<ParseNodes::BinSign>(new ParseNodes::BinSign(tmp));
+        }
+
+        if(peek().value().type == TokenTypes::_excl and
+        peek(1).value().type == TokenTypes::_equals){
+            consume(2);
+            ParseNodes::BinSign tmp{.sign={.type = TokenTypes::_cmp_neq}};
+            return std::shared_ptr<ParseNodes::BinSign>(new ParseNodes::BinSign(tmp));
+        }
+
+        if(peek().value().type == TokenTypes::_gt and
+        peek(1).value().type == TokenTypes::_gt){
+            consume(2);
+            ParseNodes::BinSign tmp{.sign={.type = TokenTypes::_cmp_gt}};
+            return std::shared_ptr<ParseNodes::BinSign>(new ParseNodes::BinSign(tmp));
+        }
+
+        if(peek().value().type == TokenTypes::_gt and
+        peek(1).value().type == TokenTypes::_equals){
+            consume(2);
+            ParseNodes::BinSign tmp{.sign={.type = TokenTypes::_cmp_geq}};
+            return std::shared_ptr<ParseNodes::BinSign>(new ParseNodes::BinSign(tmp));
+        }
+
+        if(peek().value().type == TokenTypes::_lt and
+        peek(1).value().type == TokenTypes::_lt){
+            consume(2);
+            ParseNodes::BinSign tmp{.sign={.type = TokenTypes::_cmp_lt}};
+            return std::shared_ptr<ParseNodes::BinSign>(new ParseNodes::BinSign(tmp));
+        }
+
+        if(peek().value().type == TokenTypes::_lt and
+        peek(1).value().type == TokenTypes::_equals){
+            consume(2);
+            ParseNodes::BinSign tmp{.sign={.type = TokenTypes::_cmp_leq}};
+            return std::shared_ptr<ParseNodes::BinSign>(new ParseNodes::BinSign(tmp));
+        }
+        return {};
+    }
+
+    /*std::optional<std::shared_ptr<ParseNodes::StmtIfBlck>> parse_ifblck(){
+        if(!peek().has_value()){
+            return {};
+        }
+
+        std::shared_ptr<ParseNodes::StmtIfBlck> ifblck(new ParseNodes::StmtIfBlck);
+        if(peek().value().type == TokenTypes::_open_block){
+            consume();
+            while(peek().has_value() and peek().value().type != TokenTypes::_close_block){
+                auto parsedStatement = parse_stmt();
+                if(!parsedStatement.has_value()){
+                    std::cerr << "invalid statement" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                ifblck->statements.push_back(parsedStatement.value());
+            }
+            if(!peek().has_value() or peek().value().type != TokenTypes::_close_block){
+                std::cerr << "block is not closed" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            consume();
+            return ifblck;
+        }else{
+            auto parsedStatement = parse_stmt();
+            if(!parsedStatement.has_value()){
+                std::cerr << "invalid statement" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            ifblck->statements.push_back(parsedStatement.value());
+            return ifblck;
+        }
+
+        return {};
+    }*/
+
+    std::optional<std::shared_ptr<ParseNodes::StmtBlck>> parse_stmtblck(){
+        std::shared_ptr<ParseNodes::StmtBlck> out(new ParseNodes::StmtBlck);
+        
+        while(peek().has_value() and peek().value().type != TokenTypes::_close_block){
+            auto parsedStmt = parse_stmt();
+            if(!parsedStmt.has_value()){
+                std::cerr << "Invalid statement" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            out->statements.push_back(parsedStmt.value());
+        }
+
+        if(!peek().has_value()){
+            return {};
+        }
+
+        return out;
+    }
+
     std::optional<std::shared_ptr<ParseNodes::Stmt>> parse_stmt(){
         if(!peek().has_value()){
             return {};
@@ -178,6 +284,26 @@ public:
             return statement;
         }
 
+        if(firstToken == TokenTypes::_open_block){
+            consume();
+            auto parsed_stmtblck = parse_stmtblck();
+
+            if(!parsed_stmtblck.has_value()){
+                std::cerr << "Invalid statement block" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            if(!peek().has_value()){
+                std::cerr << "statement block is not closed" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            std::shared_ptr<ParseNodes::Stmt> statement(new ParseNodes::Stmt);
+            statement->var = parsed_stmtblck.value();
+            consume();
+
+            return statement;
+        }
         return {};
     }
 

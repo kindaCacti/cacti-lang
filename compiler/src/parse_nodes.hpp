@@ -9,6 +9,16 @@
 // just for the sake of being clean I guess
 namespace ParseNodes{
     struct Expr;
+    struct StmtBlck;
+
+    struct BinSign{
+        Token sign;
+    };
+
+    struct ExprBin{
+        std::shared_ptr<Expr> left, right;
+        std::shared_ptr<BinSign> sign;
+    };
 
     struct ExprIntLit{
         Token int_lit;
@@ -52,7 +62,17 @@ namespace ParseNodes{
 
     struct Stmt{
         std::variant<std::shared_ptr<StmtExit>, 
-                     std::shared_ptr<StmtLet>> var;
+                     std::shared_ptr<StmtLet>,
+                     std::shared_ptr<StmtBlck>> var;
+    };
+
+    struct StmtBlck{
+        std::vector<std::shared_ptr<Stmt>> statements;
+    };
+
+    struct StmtIf{
+        std::shared_ptr<ExprBin> expression;
+        std::shared_ptr<Stmt> statement;
     };
 
     struct Prog{

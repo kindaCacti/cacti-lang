@@ -71,6 +71,11 @@ public:
         if(data == '-') return TokenTypes::_subtraction;
         if(data == '*') return TokenTypes::_multiplication;
         if(data == '/') return TokenTypes::_division;
+        if(data == '!') return TokenTypes::_excl;
+        if(data == '<') return TokenTypes::_lt;
+        if(data == '>') return TokenTypes::_gt;
+        if(data == '{') return TokenTypes::_open_block;
+        if(data == '}') return TokenTypes::_close_block;
         return {};
     }
 

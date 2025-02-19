@@ -39,7 +39,7 @@ public:
                     exit(EXIT_FAILURE);
                 }
 
-                int offset = gen->stack_loc - gen->variables_loc[identifier].stack_loc - 1;
+                int offset = gen->stack_loc - gen->variables_loc[identifier]->stack_loc - 1;
 
                 gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
                 gen->push("rax");
@@ -93,7 +93,7 @@ public:
                     exit(EXIT_FAILURE);
                 }
 
-                int offset = gen->stack_loc - gen->variables_loc[identifier].stack_loc - 1;
+                int offset = gen->stack_loc - gen->variables_loc[identifier]->stack_loc - 1;
 
                 gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
                 gen->push("rax");
@@ -139,8 +139,29 @@ public:
                     exit(EXIT_FAILURE);
                 }
 
-                gen->variables_loc[identifier] = Var{.stack_loc = gen->stack_loc};
+                Var tmp{.stack_loc = gen->stack_loc,
+                .identifier = let_statement->identifier.data.value()};
+                gen->variables_loc[identifier] = std::shared_ptr<Var>(new Var(tmp));
+                gen->var_stack.push(gen->variables_loc[identifier]);
+
                 gen->generate_expression(let_statement->expression);
+            }
+        
+            void operator()(const std::shared_ptr<ParseNodes::StmtBlck> statement_block){
+                gen->stack_positions.push(gen->stack_loc);
+
+                for(auto stmt : statement_block->statements){
+                    gen->generate_statement(stmt);
+                }
+
+                while(gen->stack_loc > gen->stack_positions.top()){
+                    // might change to just moving stack pointer
+                    gen->pop("rax");
+                    gen->variables_loc.erase(gen->variables_loc.find(gen->var_stack.top()->identifier));
+                    gen->var_stack.pop();
+                }
+
+                gen->stack_positions.pop();
             }
         private:
             CodeGenerator* gen;
@@ -167,6 +188,7 @@ public:
 
     struct Var{
         size_t stack_loc;
+        std::string identifier;
     };
 
     void push(const std::string reg){
@@ -184,8 +206,10 @@ public:
         stack_loc--;
     }
 
-    std::unordered_map<std::string, Var> variables_loc;
+    std::unordered_map<std::string, std::shared_ptr<Var>> variables_loc;
     std::stringstream out;
     std::stack<std::shared_ptr<RPNNode>> signStack;
+    std::stack<size_t> stack_positions;
+    std::stack<std::shared_ptr<Var>> var_stack;
     size_t stack_loc = 0;
 };
