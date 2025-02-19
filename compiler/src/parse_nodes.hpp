@@ -10,6 +10,7 @@
 namespace ParseNodes{
     struct Expr;
     struct StmtBlck;
+    struct StmtIf;
 
     struct BinSign{
         Token sign;
@@ -63,7 +64,8 @@ namespace ParseNodes{
     struct Stmt{
         std::variant<std::shared_ptr<StmtExit>, 
                      std::shared_ptr<StmtLet>,
-                     std::shared_ptr<StmtBlck>> var;
+                     std::shared_ptr<StmtBlck>,
+                     std::shared_ptr<StmtIf>> var;
     };
 
     struct StmtBlck{

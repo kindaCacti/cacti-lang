@@ -152,42 +152,6 @@ public:
         return {};
     }
 
-    /*std::optional<std::shared_ptr<ParseNodes::StmtIfBlck>> parse_ifblck(){
-        if(!peek().has_value()){
-            return {};
-        }
-
-        std::shared_ptr<ParseNodes::StmtIfBlck> ifblck(new ParseNodes::StmtIfBlck);
-        if(peek().value().type == TokenTypes::_open_block){
-            consume();
-            while(peek().has_value() and peek().value().type != TokenTypes::_close_block){
-                auto parsedStatement = parse_stmt();
-                if(!parsedStatement.has_value()){
-                    std::cerr << "invalid statement" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                ifblck->statements.push_back(parsedStatement.value());
-            }
-            if(!peek().has_value() or peek().value().type != TokenTypes::_close_block){
-                std::cerr << "block is not closed" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-
-            consume();
-            return ifblck;
-        }else{
-            auto parsedStatement = parse_stmt();
-            if(!parsedStatement.has_value()){
-                std::cerr << "invalid statement" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            ifblck->statements.push_back(parsedStatement.value());
-            return ifblck;
-        }
-
-        return {};
-    }*/
-
     std::optional<std::shared_ptr<ParseNodes::StmtBlck>> parse_stmtblck(){
         std::shared_ptr<ParseNodes::StmtBlck> out(new ParseNodes::StmtBlck);
         
@@ -208,6 +172,31 @@ public:
         return out;
     }
 
+    std::optional<std::shared_ptr<ParseNodes::ExprBin>> parse_exprbin(){
+        auto leftExpr = parse_expr();
+        if(!leftExpr.has_value()){
+            std::cerr << "invalid left expression in if statement" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        auto binSign = parse_binsign();
+        if(!binSign.has_value()){
+            std::cerr << "invalid comparisong sign" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        auto rightExpr = parse_expr();
+        if(!rightExpr.has_value()){
+            std::cerr << "invalid right expression in if statement" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        ParseNodes::ExprBin binExpr{.left = leftExpr.value(), 
+        .right = rightExpr.value(), .sign = binSign.value()};
+        std::shared_ptr<ParseNodes::ExprBin> out(new ParseNodes::ExprBin(binExpr));
+        return out;
+    }
+    
     std::optional<std::shared_ptr<ParseNodes::Stmt>> parse_stmt(){
         if(!peek().has_value()){
             return {};
@@ -304,6 +293,37 @@ public:
 
             return statement;
         }
+        
+        if(firstToken == TokenTypes::_if){
+            consume();
+            
+            if(!peek().has_value() or 
+            peek().value().type != TokenTypes::_open_parentheses){
+                std::cerr << "Invalid if statement" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            consume();
+
+            auto parsedIf = parse_exprbin();
+            if(!parsedIf.has_value()){
+                std::cerr << "Invalid expression in if statement" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            consume();
+
+            auto parsedStatement = parse_stmt();
+            if(!parsedStatement.has_value()){
+                std::cerr << "No statement in if" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            ParseNodes::StmtIf ifstm{.expression = parsedIf.value(), 
+            .statement = parsedStatement.value()};
+            ParseNodes::Stmt tmp{.var = std::shared_ptr<ParseNodes::StmtIf>(new ParseNodes::StmtIf(ifstm))};
+            std::shared_ptr<ParseNodes::Stmt> out(new ParseNodes::Stmt(tmp));
+            return out;
+        }
+
         return {};
     }
 

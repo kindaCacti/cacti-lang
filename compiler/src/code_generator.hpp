@@ -118,6 +118,30 @@ public:
         std::visit(visitor, expression->var);
     }
 
+    void generate_sign(std::shared_ptr<ParseNodes::BinSign> bin_sign, size_t ifid){
+        if(bin_sign->sign.type == TokenTypes::_cmp_eq) 
+            out << "   jne _if" << std::to_string(ifid) <<"\n";
+        if(bin_sign->sign.type == TokenTypes::_cmp_geq) 
+            out << "   jnae _if" << std::to_string(ifid) <<"\n";
+        if(bin_sign->sign.type == TokenTypes::_cmp_gt)
+            out << "   jng _if" << std::to_string(ifid) <<"\n";
+        if(bin_sign->sign.type == TokenTypes::_cmp_leq) 
+            out << "   jnbe _if" << std::to_string(ifid) <<"\n";
+        if(bin_sign->sign.type == TokenTypes::_cmp_lt)
+            out << "   jnl _if" << std::to_string(ifid) <<"\n";
+        if(bin_sign->sign.type == TokenTypes::_cmp_neq) 
+            out << "   je _if" << std::to_string(ifid) <<"\n";
+    }
+
+    void generate_exprbin(const std::shared_ptr<ParseNodes::ExprBin> bin_expression, size_t ifid){
+        generate_expression(bin_expression->left);
+        generate_expression(bin_expression->right);
+        pop("rbx");
+        pop("rax");
+        out << "   cmp rax, rbx\n";
+        generate_sign(bin_expression->sign, ifid);
+    }
+
     void generate_statement(const std::shared_ptr<ParseNodes::Stmt> statement){
         std::stringstream out;
 
@@ -162,6 +186,16 @@ public:
                 }
 
                 gen->stack_positions.pop();
+            }
+        
+            void operator()(const std::shared_ptr<ParseNodes::StmtIf> if_statement){
+                size_t cid = gen->if_id;
+                gen->if_id++;
+
+                gen->generate_exprbin(if_statement->expression, cid);
+                gen->generate_statement(if_statement->statement);
+
+                gen->out << "_if" << std::to_string(cid) << ":" << std::endl;
             }
         private:
             CodeGenerator* gen;
@@ -212,4 +246,5 @@ public:
     std::stack<size_t> stack_positions;
     std::stack<std::shared_ptr<Var>> var_stack;
     size_t stack_loc = 0;
+    size_t if_id = 0;
 };
