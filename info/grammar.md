@@ -4,9 +4,10 @@ $$
     [\text{stmt}] &\to 
     \begin{cases}
         \text{exit}([\text{expr}]); \\
-        \text{let ident} = [expr];\\
+        \text{let ident} = \text{[expr];}\\
         \text{if ([exprbin]) [stmt]}\\
-        \text{\{ $\text{[stmtblck]}^*$ \}}
+        \text{\{ $\text{[stmtblck]}^*$ \}}\\
+        \text{ident = [expr];}
     \end{cases}\\
     [\text{stmtblck}] &\to
     \begin{cases}
