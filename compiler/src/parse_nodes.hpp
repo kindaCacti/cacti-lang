@@ -66,12 +66,22 @@ namespace ParseNodes{
         std::shared_ptr<Expr> expression;
     };
 
+    struct StmtLabel{
+        Token identifier;
+    };
+
+    struct StmtGoto{
+        Token identifier;
+    };
+
     struct Stmt{
         std::variant<std::shared_ptr<StmtExit>, 
                      std::shared_ptr<StmtLet>,
                      std::shared_ptr<StmtBlck>,
                      std::shared_ptr<StmtIf>,
-                     std::shared_ptr<StmtAssign>> var;
+                     std::shared_ptr<StmtAssign>,
+                     std::shared_ptr<StmtLabel>,
+                     std::shared_ptr<StmtGoto>> var;
     };
 
     struct StmtBlck{

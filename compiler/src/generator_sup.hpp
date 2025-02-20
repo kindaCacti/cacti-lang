@@ -24,6 +24,7 @@ enum Instructions{
     _imul,
     _idiv,
     _cmp,
+    _jmp,
     _jne,
     _jnae,
     _jng,

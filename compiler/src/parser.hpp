@@ -324,6 +324,14 @@ public:
             return out;
         }
 
+        if(peek(1).has_value() and firstToken == TokenTypes::_identifier and 
+        peek(1).value().type == TokenTypes::_colon){
+            ParseNodes::StmtLabel tmp{.identifier=consume()};
+            consume();
+            ParseNodes::Stmt tmpStmt{.var=std::shared_ptr<ParseNodes::StmtLabel>(new ParseNodes::StmtLabel(tmp))};
+            return std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(tmpStmt));
+        }
+
         if(firstToken == TokenTypes::_identifier){
             Token ident = consume();
             if(!peek().has_value() or peek().value().type != TokenTypes::_equals){
@@ -349,6 +357,24 @@ public:
             return std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(out));
         }
 
+
+        if(firstToken == TokenTypes::_goto){
+            consume();
+
+            if(!peek(1).has_value() or peek().value().type != TokenTypes::_identifier
+            or peek(1).value().type != TokenTypes::_semicolon){
+                std::cerr << "invalid goto statement!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            Token identifier = consume();
+            consume();
+
+            ParseNodes::StmtGoto gotostmt{.identifier=identifier};
+            std::shared_ptr<ParseNodes::StmtGoto> tmp(new ParseNodes::StmtGoto(gotostmt));
+            ParseNodes::Stmt out{.var=tmp};
+            return std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(out));
+        }
         return {};
     }
 

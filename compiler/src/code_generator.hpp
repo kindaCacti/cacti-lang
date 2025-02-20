@@ -5,6 +5,7 @@
 #include <optional>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 #include <stack>
 #include <queue>
@@ -215,7 +216,26 @@ public:
                 gen->generate_expression(assign_statement->expression);
                 gen->update_variable(identifier);
             }
-        private:
+        
+            void operator()(const std::shared_ptr<ParseNodes::StmtLabel> label_statement){
+                std::string label = label_statement->identifier.data.value();
+                if(gen->existing_labels.find(label) != gen->existing_labels.end()){
+                    std::cerr << "Such label already exists!" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                gen->existing_labels.insert(label);
+                gen->add_ins(ASMNode{.instruction=Instructions::_label, .data=label+":"});
+            }
+    
+            void operator()(const std::shared_ptr<ParseNodes::StmtGoto> goto_statement){
+                std::string label = goto_statement->identifier.data.value();
+                if(gen->existing_labels.find(label) == gen->existing_labels.end()){
+                    std::cerr << "Such label does not exist!" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                gen->add_ins(ASMNode{.instruction=Instructions::_jmp, .data=label});
+            }
+            private:
             CodeGenerator* gen;
         };
 
@@ -301,6 +321,7 @@ public:
         if(ins_type == Instructions::_imul)     tmp << "   imul ";
         if(ins_type == Instructions::_idiv)     tmp << "   idiv ";
         if(ins_type == Instructions::_cmp)      tmp << "   cmp ";
+        if(ins_type == Instructions::_jmp)      tmp << "   jmp ";
         if(ins_type == Instructions::_jne)      tmp << "   jne ";
         if(ins_type == Instructions::_jnae)     tmp << "   jnae ";
         if(ins_type == Instructions::_jng)      tmp << "   jng ";
@@ -319,6 +340,7 @@ public:
     }
 
     std::vector<ASMNode> instructions;
+    std::unordered_set<std::string> existing_labels;
     std::unordered_map<std::string, std::shared_ptr<Var>> variables_loc;
     std::stringstream out;
     std::stack<std::shared_ptr<RPNNode>> signStack;

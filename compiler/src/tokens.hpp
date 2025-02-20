@@ -5,10 +5,11 @@
 #include <unordered_map>
 #include <set>
 
-std::set<char> special_chars = {';', '(', ')', '=', '+', '*', '-', '/', '!', '<', '>', '{', '}'};
+std::set<char> special_chars = {';', ':', '(', ')', '=', '+', '*', '-', '/', '!', '<', '>', '{', '}'};
 
 enum TokenTypes{
     _semicolon,
+    _colon,
     _exit,
     _integer_literal,
     _open_parentheses,
@@ -32,6 +33,7 @@ enum TokenTypes{
     _cmp_geq,       // greater or equal
     _open_block,    // basically {
     _close_block,   // basically }
+    _goto,
 };
 
 std::unordered_map<TokenTypes, int> operator_weights = {
@@ -63,5 +65,6 @@ struct TokenData{
 const std::vector<TokenData> tokenStrings = {
     {"exit",  TokenTypes::_exit},
     {"let",   TokenTypes::_let},
-    {"if",   TokenTypes::_if}
+    {"if",   TokenTypes::_if},
+    {"goto",   TokenTypes::_goto}
 };
