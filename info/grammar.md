@@ -7,7 +7,9 @@ $$
         \text{let ident} = \text{[expr];}\\
         \text{if ([exprbin]) [stmt]}\\
         \text{\{ $\text{[stmtblck]}^*$ \}}\\
-        \text{ident = [expr];}
+        \text{ident = [expr];}\\
+        \text{ident:}\\
+        \text{goto [ident];}
     \end{cases}\\
     [\text{stmtblck}] &\to
     \begin{cases}
