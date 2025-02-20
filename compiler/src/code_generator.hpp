@@ -20,10 +20,14 @@ public:
     void generate_operators(TokenTypes type){
         pop("rbx");
         pop("rax");
-        if(type == TokenTypes::_addition) out << "   add rax, rbx\n";
-        if(type == TokenTypes::_subtraction) out << "   sub rax, rbx\n";
-        if(type == TokenTypes::_multiplication) out << "   imul rbx\n";
-        if(type == TokenTypes::_division) out << "   idiv rbx\n";
+        if(type == TokenTypes::_addition) //out << "   add rax, rbx\n";
+            add_ins(ASMNode{.instruction=Instructions::_add, .data="rax, rbx"});
+        if(type == TokenTypes::_subtraction) //out << "   sub rax, rbx\n";
+            add_ins(ASMNode{.instruction=Instructions::_sub, .data="rax, rbx"});
+        if(type == TokenTypes::_multiplication) //out << "   imul rbx\n";
+            add_ins(ASMNode{.instruction=Instructions::_imul, .data="rbx"});
+        if(type == TokenTypes::_division) //out << "   idiv rbx\n";
+            add_ins(ASMNode{.instruction=Instructions::_idiv, .data="rbx"});
         push("rax");
     }
 
@@ -40,14 +44,18 @@ public:
                 }
 
                 int offset = gen->stack_loc - gen->variables_loc[identifier]->stack_loc - 1;
-
-                gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
+                
+                std::string data = "rax, QWORD [rsp+" + std::to_string(offset * 8) + "]";
+                gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
+                //gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
                 gen->push("rax");
             }
 
             void operator()(const std::shared_ptr<ParseNodes::ExprIntLit> int_lit){
                 //this is kind of stupid but maybe I'll change that later
-                gen->out << "   mov rax, " << int_lit->int_lit.data.value() <<"\n";
+                std::string data = "rax, " + int_lit->int_lit.data.value();
+                gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
+                //gen->out << "   mov rax, " << int_lit->int_lit.data.value() <<"\n";
                 gen->push("rax");
             }
             
@@ -81,7 +89,9 @@ public:
 
             void operator()(const std::shared_ptr<ParseNodes::ExprIntLit> int_lit){
                 //this is kind of stupid but maybe I'll change that later
-                gen->out << "   mov rax, " << int_lit->int_lit.data.value() <<"\n";
+                std::string data = "rax, " + int_lit->int_lit.data.value();
+                gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
+                //gen->out << "   mov rax, " << int_lit->int_lit.data.value() <<"\n";
                 gen->push("rax");
             }
 
@@ -95,7 +105,9 @@ public:
 
                 int offset = gen->stack_loc - gen->variables_loc[identifier]->stack_loc - 1;
 
-                gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
+                std::string data = "rax, QWORD [rsp+" + std::to_string(offset * 8) + "]";
+                gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
+                //gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
                 gen->push("rax");
             }
 
@@ -118,28 +130,36 @@ public:
         std::visit(visitor, expression->var);
     }
 
-    void generate_sign(std::shared_ptr<ParseNodes::BinSign> bin_sign, size_t ifid){
+    void generate_sign(std::shared_ptr<ParseNodes::BinSign> bin_sign, std::string label){
         if(bin_sign->sign.type == TokenTypes::_cmp_eq) 
-            out << "   jne _if" << std::to_string(ifid) <<"\n";
+            add_ins(ASMNode{.instruction=Instructions::_jne, .data=label});
+            //out << "   jne _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_geq) 
-            out << "   jnae _if" << std::to_string(ifid) <<"\n";
+            add_ins(ASMNode{.instruction=Instructions::_jnae, .data=label});
+            //out << "   jnae _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_gt)
-            out << "   jng _if" << std::to_string(ifid) <<"\n";
+            add_ins(ASMNode{.instruction=Instructions::_jng, .data=label});
+            // out << "   jng _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_leq) 
-            out << "   jnbe _if" << std::to_string(ifid) <<"\n";
+            add_ins(ASMNode{.instruction=Instructions::_jnbe, .data=label});
+            //out << "   jnbe _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_lt)
-            out << "   jnl _if" << std::to_string(ifid) <<"\n";
+            add_ins(ASMNode{.instruction=Instructions::_jnl, .data=label});
+            //out << "   jnl _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_neq) 
-            out << "   je _if" << std::to_string(ifid) <<"\n";
+            add_ins(ASMNode{.instruction=Instructions::_je, .data=label});
+            //out << "   je _if" << std::to_string(ifid) <<"\n";
     }
 
-    void generate_exprbin(const std::shared_ptr<ParseNodes::ExprBin> bin_expression, size_t ifid){
+    void generate_exprbin(const std::shared_ptr<ParseNodes::ExprBin> bin_expression, const std::string& label){
         generate_expression(bin_expression->left);
         generate_expression(bin_expression->right);
         pop("rbx");
         pop("rax");
+
+        add_ins(ASMNode{.instruction=Instructions::_cmp, .data="rax, rbx"});
         out << "   cmp rax, rbx\n";
-        generate_sign(bin_expression->sign, ifid);
+        generate_sign(bin_expression->sign, label);
     }
 
     void generate_statement(const std::shared_ptr<ParseNodes::Stmt> statement){
@@ -151,8 +171,10 @@ public:
             void operator()(const std::shared_ptr<ParseNodes::StmtExit> exit_statement){
                 gen->generate_expression(exit_statement->expression);
 
+                gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, 60"});
                 gen->out << "   mov rax, 60\n";
                 gen->pop("rdi");
+                gen->add_ins(ASMNode{.instruction=Instructions::_syscall, .data=""});
                 gen->out << "   syscall\n";
             }
 
@@ -191,10 +213,12 @@ public:
             void operator()(const std::shared_ptr<ParseNodes::StmtIf> if_statement){
                 size_t cid = gen->if_id;
                 gen->if_id++;
+                std::string label = "_if" + std::to_string(cid);
 
-                gen->generate_exprbin(if_statement->expression, cid);
+                gen->generate_exprbin(if_statement->expression, label);
                 gen->generate_statement(if_statement->statement);
 
+                gen->add_ins(ASMNode{.instruction=Instructions::_label, .data=label + ":"});
                 gen->out << "_if" << std::to_string(cid) << ":" << std::endl;
             }
         
@@ -216,26 +240,29 @@ public:
     }
 
     std::string generate_program(){
+        add_ins(ASMNode{.instruction=Instructions::_global, .data="global _start"});
+        add_ins(ASMNode{.instruction=Instructions::_label, .data="_start:"});
         out << "global _start\n";
         out << "_start:\n";
+        
 
         for(const std::shared_ptr<ParseNodes::Stmt> statement : root->statements){
             generate_statement(statement);
         }
 
+        add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, 60"});
+        add_ins(ASMNode{.instruction=Instructions::_mov, .data="rdi, 0"});
+        add_ins(ASMNode{.instruction=Instructions::_syscall, .data=""});
         out << "   mov rax, 60\n";
         out << "   mov rdi, 0\n";
         out << "   syscall\n";
 
+        streamify_code();
         return out.str();
     }
 
-    struct Var{
-        size_t stack_loc;
-        std::string identifier;
-    };
-
     void push(const std::string reg){
+        add_ins(ASMNode{.instruction=Instructions::_push, .data=reg});
         out << "   push "<< reg <<"\n";
         stack_loc++;
     }
@@ -246,6 +273,7 @@ public:
             exit(EXIT_FAILURE);
         }
 
+        add_ins(ASMNode{.instruction=Instructions::_pop, .data=reg});
         out << "   pop " << reg << "\n";
         stack_loc--;
     }
@@ -253,6 +281,12 @@ public:
     void update_variable(const std::string& var){
         pop("rcx");
         size_t ammount = (stack_loc - variables_loc[var]->stack_loc) * 8;
+        add_ins(ASMNode{.instruction=Instructions::_mov, .data="rbx, rsp"});
+        add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, " + std::to_string(ammount)});
+        add_ins(ASMNode{.instruction=Instructions::_add, .data="rsp, rax"});
+        add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, rcx"});
+        add_ins(ASMNode{.instruction=Instructions::_push, .data="rax"});
+        add_ins(ASMNode{.instruction=Instructions::_mov, .data="rsp, rbx"});
         out << "   mov rbx, rsp\n";
         out << "   mov rax, " << ammount <<"\n";
         out << "   add rsp, rax\n";
@@ -261,6 +295,59 @@ public:
         out << "   mov rsp, rbx\n";
     }
 
+    void add_ins(ASMNode ins){
+        if(!instructions.size()){
+            instructions.push_back(ins);
+            return;
+        }
+
+        if(ins.instruction == Instructions::_pop and 
+        instructions.back().instruction == Instructions::_push and
+        instructions.back().data == ins.data){
+            instructions.pop_back();
+            return;
+        }
+
+        if(ins.instruction == Instructions::_push and 
+        instructions.back().instruction == Instructions::_pop and
+        instructions.back().data == ins.data){
+            instructions.pop_back();
+            return;
+        }
+
+        instructions.push_back(ins);
+    }
+
+    std::stringstream conv_instruction_type(Instructions ins_type){
+        std::stringstream tmp;
+
+        if(ins_type == Instructions::_syscall)  tmp << "   syscall ";
+        if(ins_type == Instructions::_push)     tmp << "   push ";
+        if(ins_type == Instructions::_pop)      tmp << "   pop ";
+        if(ins_type == Instructions::_mov)      tmp << "   mov ";
+        if(ins_type == Instructions::_add)      tmp << "   add ";
+        if(ins_type == Instructions::_sub)      tmp << "   sub ";
+        if(ins_type == Instructions::_imul)     tmp << "   imul ";
+        if(ins_type == Instructions::_idiv)     tmp << "   idiv ";
+        if(ins_type == Instructions::_cmp)      tmp << "   cmp ";
+        if(ins_type == Instructions::_jne)      tmp << "   jne ";
+        if(ins_type == Instructions::_jnae)     tmp << "   jnae ";
+        if(ins_type == Instructions::_jng)      tmp << "   jng ";
+        if(ins_type == Instructions::_jnbe)     tmp << "   jnbe ";
+        if(ins_type == Instructions::_jnl)      tmp << "   jnl ";
+        if(ins_type == Instructions::_je)       tmp << "   je ";
+
+        return tmp;
+    }
+
+    void streamify_code(){
+        out = std::stringstream();
+        for(ASMNode ins : instructions){
+            out << conv_instruction_type(ins.instruction).str() << ins.data << "\n";
+        }
+    }
+
+    std::vector<ASMNode> instructions;
     std::unordered_map<std::string, std::shared_ptr<Var>> variables_loc;
     std::stringstream out;
     std::stack<std::shared_ptr<RPNNode>> signStack;
