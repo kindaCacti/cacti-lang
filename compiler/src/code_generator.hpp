@@ -20,13 +20,13 @@ public:
     void generate_operators(TokenTypes type){
         pop("rbx");
         pop("rax");
-        if(type == TokenTypes::_addition) //out << "   add rax, rbx\n";
+        if(type == TokenTypes::_addition)
             add_ins(ASMNode{.instruction=Instructions::_add, .data="rax, rbx"});
-        if(type == TokenTypes::_subtraction) //out << "   sub rax, rbx\n";
+        if(type == TokenTypes::_subtraction)
             add_ins(ASMNode{.instruction=Instructions::_sub, .data="rax, rbx"});
-        if(type == TokenTypes::_multiplication) //out << "   imul rbx\n";
+        if(type == TokenTypes::_multiplication)
             add_ins(ASMNode{.instruction=Instructions::_imul, .data="rbx"});
-        if(type == TokenTypes::_division) //out << "   idiv rbx\n";
+        if(type == TokenTypes::_division)
             add_ins(ASMNode{.instruction=Instructions::_idiv, .data="rbx"});
         push("rax");
     }
@@ -47,15 +47,12 @@ public:
                 
                 std::string data = "rax, QWORD [rsp+" + std::to_string(offset * 8) + "]";
                 gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
-                //gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
                 gen->push("rax");
             }
 
             void operator()(const std::shared_ptr<ParseNodes::ExprIntLit> int_lit){
-                //this is kind of stupid but maybe I'll change that later
                 std::string data = "rax, " + int_lit->int_lit.data.value();
                 gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
-                //gen->out << "   mov rax, " << int_lit->int_lit.data.value() <<"\n";
                 gen->push("rax");
             }
             
@@ -88,10 +85,8 @@ public:
             ExprVisitor(CodeGenerator* _gen) : gen(_gen) {}
 
             void operator()(const std::shared_ptr<ParseNodes::ExprIntLit> int_lit){
-                //this is kind of stupid but maybe I'll change that later
                 std::string data = "rax, " + int_lit->int_lit.data.value();
                 gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
-                //gen->out << "   mov rax, " << int_lit->int_lit.data.value() <<"\n";
                 gen->push("rax");
             }
 
@@ -107,7 +102,6 @@ public:
 
                 std::string data = "rax, QWORD [rsp+" + std::to_string(offset * 8) + "]";
                 gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data=data});
-                //gen->out << "   mov rax, QWORD [rsp + " << offset * 8 <<"]\n";
                 gen->push("rax");
             }
 
@@ -133,22 +127,16 @@ public:
     void generate_sign(std::shared_ptr<ParseNodes::BinSign> bin_sign, std::string label){
         if(bin_sign->sign.type == TokenTypes::_cmp_eq) 
             add_ins(ASMNode{.instruction=Instructions::_jne, .data=label});
-            //out << "   jne _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_geq) 
             add_ins(ASMNode{.instruction=Instructions::_jnae, .data=label});
-            //out << "   jnae _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_gt)
             add_ins(ASMNode{.instruction=Instructions::_jng, .data=label});
-            // out << "   jng _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_leq) 
             add_ins(ASMNode{.instruction=Instructions::_jnbe, .data=label});
-            //out << "   jnbe _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_lt)
             add_ins(ASMNode{.instruction=Instructions::_jnl, .data=label});
-            //out << "   jnl _if" << std::to_string(ifid) <<"\n";
         if(bin_sign->sign.type == TokenTypes::_cmp_neq) 
             add_ins(ASMNode{.instruction=Instructions::_je, .data=label});
-            //out << "   je _if" << std::to_string(ifid) <<"\n";
     }
 
     void generate_exprbin(const std::shared_ptr<ParseNodes::ExprBin> bin_expression, const std::string& label){
@@ -158,7 +146,6 @@ public:
         pop("rax");
 
         add_ins(ASMNode{.instruction=Instructions::_cmp, .data="rax, rbx"});
-        out << "   cmp rax, rbx\n";
         generate_sign(bin_expression->sign, label);
     }
 
@@ -172,10 +159,8 @@ public:
                 gen->generate_expression(exit_statement->expression);
 
                 gen->add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, 60"});
-                gen->out << "   mov rax, 60\n";
                 gen->pop("rdi");
                 gen->add_ins(ASMNode{.instruction=Instructions::_syscall, .data=""});
-                gen->out << "   syscall\n";
             }
 
             void operator()(const std::shared_ptr<ParseNodes::StmtLet> let_statement){
@@ -219,7 +204,6 @@ public:
                 gen->generate_statement(if_statement->statement);
 
                 gen->add_ins(ASMNode{.instruction=Instructions::_label, .data=label + ":"});
-                gen->out << "_if" << std::to_string(cid) << ":" << std::endl;
             }
         
             void operator()(const std::shared_ptr<ParseNodes::StmtAssign> assign_statement){
@@ -242,8 +226,6 @@ public:
     std::string generate_program(){
         add_ins(ASMNode{.instruction=Instructions::_global, .data="global _start"});
         add_ins(ASMNode{.instruction=Instructions::_label, .data="_start:"});
-        out << "global _start\n";
-        out << "_start:\n";
         
 
         for(const std::shared_ptr<ParseNodes::Stmt> statement : root->statements){
@@ -253,9 +235,6 @@ public:
         add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, 60"});
         add_ins(ASMNode{.instruction=Instructions::_mov, .data="rdi, 0"});
         add_ins(ASMNode{.instruction=Instructions::_syscall, .data=""});
-        out << "   mov rax, 60\n";
-        out << "   mov rdi, 0\n";
-        out << "   syscall\n";
 
         streamify_code();
         return out.str();
@@ -263,7 +242,6 @@ public:
 
     void push(const std::string reg){
         add_ins(ASMNode{.instruction=Instructions::_push, .data=reg});
-        out << "   push "<< reg <<"\n";
         stack_loc++;
     }
 
@@ -274,7 +252,6 @@ public:
         }
 
         add_ins(ASMNode{.instruction=Instructions::_pop, .data=reg});
-        out << "   pop " << reg << "\n";
         stack_loc--;
     }
 
@@ -287,12 +264,6 @@ public:
         add_ins(ASMNode{.instruction=Instructions::_mov, .data="rax, rcx"});
         add_ins(ASMNode{.instruction=Instructions::_push, .data="rax"});
         add_ins(ASMNode{.instruction=Instructions::_mov, .data="rsp, rbx"});
-        out << "   mov rbx, rsp\n";
-        out << "   mov rax, " << ammount <<"\n";
-        out << "   add rsp, rax\n";
-        out << "   mov rax, rcx" << "\n";
-        out << "   push rax\n";
-        out << "   mov rsp, rbx\n";
     }
 
     void add_ins(ASMNode ins){
