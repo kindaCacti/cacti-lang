@@ -9,7 +9,8 @@ $$
         \text{\{ $\text{[stmtblck]}^*$ \}}\\
         \text{ident = [expr];}\\
         \text{ident:}\\
-        \text{goto [ident];}
+        \text{goto [ident];}\\
+        \text{while([exprbin])[stmt]}
     \end{cases}\\
     [\text{stmtblck}] &\to
     \begin{cases}
