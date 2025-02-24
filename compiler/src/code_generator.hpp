@@ -235,6 +235,18 @@ public:
                 }
                 gen->add_ins(ASMNode{.instruction=Instructions::_jmp, .data=label});
             }
+            
+            void operator()(const std::shared_ptr<ParseNodes::StmtWhile> while_statement){
+                size_t old_id = gen->if_id;
+                std::string startLabel = "while_start"+std::to_string(old_id);
+                std::string endLabel = "while_end"+std::to_string(old_id);
+                gen->if_id++;
+                gen->add_ins(ASMNode{.instruction=Instructions::_label, .data=startLabel + ":"});
+                gen->generate_exprbin(while_statement->expression, endLabel);
+                gen->generate_statement(while_statement->statement);
+                gen->add_ins(ASMNode{.instruction=Instructions::_jmp, .data=startLabel});
+                gen->add_ins(ASMNode{.instruction=Instructions::_label, .data=endLabel + ":"});
+            }
             private:
             CodeGenerator* gen;
         };

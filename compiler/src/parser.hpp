@@ -357,7 +357,6 @@ public:
             return std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(out));
         }
 
-
         if(firstToken == TokenTypes::_goto){
             consume();
 
@@ -374,6 +373,36 @@ public:
             std::shared_ptr<ParseNodes::StmtGoto> tmp(new ParseNodes::StmtGoto(gotostmt));
             ParseNodes::Stmt out{.var=tmp};
             return std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(out));
+        }
+        
+        if(firstToken == TokenTypes::_while){
+            consume();
+            if(peek().value().type != TokenTypes::_open_parentheses){
+                std::cerr << "Expected '(' in while statement" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            consume();
+            auto parsedExprbin = parse_exprbin();
+            if(!parsedExprbin.has_value()){
+                std::cerr << "Invalid binary expression" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            if(peek().value().type != TokenTypes::_close_parentheses){
+                std::cerr << "Expected ')' in while statement" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            consume();
+            auto parsedStatement = parse_stmt();
+
+            if(!parsedStatement.has_value()){
+                std::cerr << "Invalid statement expression" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            ParseNodes::StmtWhile whileStmt{.expression = parsedExprbin.value(), .statement = parsedStatement.value()};
+            ParseNodes::Stmt stmt{.var = std::shared_ptr<ParseNodes::StmtWhile>(new ParseNodes::StmtWhile(whileStmt))};
+            std::shared_ptr<ParseNodes::Stmt> out = std::shared_ptr<ParseNodes::Stmt>(new ParseNodes::Stmt(stmt));
+            return out;
         }
         return {};
     }

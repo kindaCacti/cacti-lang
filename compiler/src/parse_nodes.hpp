@@ -11,6 +11,7 @@ namespace ParseNodes{
     struct Expr;
     struct StmtBlck;
     struct StmtIf;
+    struct StmtWhile;
 
     struct BinSign{
         Token sign;
@@ -52,10 +53,11 @@ namespace ParseNodes{
                      std::shared_ptr<ExprOper>> var;
     };
 
+    
     struct StmtExit{
         std::shared_ptr<Expr> expression;
     };
-
+    
     struct StmtLet{
         Token identifier;
         std::shared_ptr<Expr> expression;
@@ -65,7 +67,7 @@ namespace ParseNodes{
         Token identifier;
         std::shared_ptr<Expr> expression;
     };
-
+    
     struct StmtLabel{
         Token identifier;
     };
@@ -73,26 +75,32 @@ namespace ParseNodes{
     struct StmtGoto{
         Token identifier;
     };
-
+    
     struct Stmt{
         std::variant<std::shared_ptr<StmtExit>, 
-                     std::shared_ptr<StmtLet>,
-                     std::shared_ptr<StmtBlck>,
-                     std::shared_ptr<StmtIf>,
+        std::shared_ptr<StmtLet>,
+        std::shared_ptr<StmtBlck>,
+        std::shared_ptr<StmtIf>,
                      std::shared_ptr<StmtAssign>,
                      std::shared_ptr<StmtLabel>,
-                     std::shared_ptr<StmtGoto>> var;
+                     std::shared_ptr<StmtGoto>,
+                     std::shared_ptr<StmtWhile>> var;
     };
 
     struct StmtBlck{
         std::vector<std::shared_ptr<Stmt>> statements;
     };
-
+    
     struct StmtIf{
         std::shared_ptr<ExprBin> expression;
         std::shared_ptr<Stmt> statement;
     };
 
+    struct StmtWhile{
+        std::shared_ptr<ExprBin> expression;
+        std::shared_ptr<Stmt> statement;
+    };
+    
     struct Prog{
         std::vector<std::shared_ptr<Stmt>> statements;
     };

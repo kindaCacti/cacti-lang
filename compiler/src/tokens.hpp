@@ -34,6 +34,7 @@ enum TokenTypes{
     _open_block,    // basically {
     _close_block,   // basically }
     _goto,
+    _while,
 };
 
 std::unordered_map<TokenTypes, int> operator_weights = {
@@ -66,5 +67,6 @@ const std::vector<TokenData> tokenStrings = {
     {"exit",  TokenTypes::_exit},
     {"let",   TokenTypes::_let},
     {"if",   TokenTypes::_if},
-    {"goto",   TokenTypes::_goto}
+    {"goto",   TokenTypes::_goto},
+    {"while", TokenTypes::_while}
 };
