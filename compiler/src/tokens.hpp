@@ -8,33 +8,33 @@
 std::set<char> special_chars = {';', ':', '(', ')', '=', '+', '*', '-', '/', '!', '<', '>', '{', '}'};
 
 enum TokenTypes{
-    _semicolon,
-    _colon,
-    _exit,
-    _integer_literal,
-    _open_parentheses,
-    _close_parentheses,
-    _identifier,
-    _let,
-    _equals,
-    _addition,
-    _subtraction,
-    _multiplication,
-    _division,
-    _if,
-    _excl,          // exclamation point
-    _lt,            // less than sign <
-    _gt,            // greater than sign >
-    _cmp_eq,        // comparator equal
-    _cmp_neq,       // comparator not equal
-    _cmp_gt,        // greater than
-    _cmp_lt,        // less than
-    _cmp_leq,       // less or equal
-    _cmp_geq,       // greater or equal
-    _open_block,    // basically {
-    _close_block,   // basically }
-    _goto,
-    _while,
+    _semicolon,         // signifies an end of line
+    _colon,             // 
+    _exit,              // signifies the end of a program
+    _integer_literal,   // signifies the integer literal
+    _open_parentheses,  // '(' sign
+    _close_parentheses, // ')' sign
+    _identifier,        // variable identifier
+    _let,               // declaration of variable
+    _equals,            // '=' sign
+    _addition,          // '+' sign
+    _subtraction,       // '-' sign
+    _multiplication,    // '*' sign
+    _division,          // '/' sign
+    _if,                // signifies the if statement
+    _excl,              // exclamation point
+    _lt,                // less than sign <
+    _gt,                // greater than sign >
+    _cmp_eq,            // comparator equal
+    _cmp_neq,           // comparator not equal
+    _cmp_gt,            // greater than
+    _cmp_lt,            // less than
+    _cmp_leq,           // less or equal
+    _cmp_geq,           // greater or equal
+    _open_block,        // basically {
+    _close_block,       // basically }
+    _goto,              // goto keyword
+    _while,             // while keyword
 };
 
 std::unordered_map<TokenTypes, int> operator_weights = {

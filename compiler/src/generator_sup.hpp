@@ -2,6 +2,10 @@
 
 #include <string>
 #include "tokens.hpp"
+#include <unordered_map>
+#include <string>
+#include <sstream>
+#include <variant>
 
 struct RPNNode{
     TokenTypes type;
@@ -34,7 +38,19 @@ enum Instructions{
     _label
 };
 
+enum Regs{
+    rax, rbx, rdi, rcx, rsp
+};
+
+std::unordered_map<Regs, std::string> register_name = {
+    {Regs::rax, "rax"},
+    {Regs::rbx, "rbx"},
+    {Regs::rdi, "rdi"},
+    {Regs::rcx, "rcx"},
+    {Regs::rsp, "rsp"},
+};
+
 struct ASMNode{
     Instructions instruction;
-    std::string data;
+    std::vector<std::variant<Regs, std::string>> data;
 };
